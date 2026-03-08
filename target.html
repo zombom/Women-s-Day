@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SATELLITE UPLINK | TARGET: NAROWAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #020617; color: #10b981; font-family: 'JetBrains+Mono', monospace; height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; overflow: hidden; }
+        .screen { border: 1px solid #10b981; padding: 40px; position: relative; max-width: 500px; width: 90%; background: rgba(16, 185, 129, 0.05); }
+        .scan-line { position: absolute; width: 100%; height: 2px; background: rgba(16, 185, 129, 0.3); top: 0; left: 0; animation: scan 3s linear infinite; }
+        @keyframes scan { from { top: 0; } to { top: 100%; } }
+        h1 { font-size: 1rem; letter-spacing: 4px; border-bottom: 1px solid #10b981; padding-bottom: 10px; margin-bottom: 20px; }
+        .data { font-size: 0.8rem; line-height: 1.8; margin-bottom: 30px; }
+        .eidi-cmd { font-size: 1.5rem; font-weight: 700; text-align: center; color: #fff; text-shadow: 0 0 10px #10b981; border: 1px dashed #10b981; padding: 20px; }
+        .coords { opacity: 0.5; font-size: 0.7rem; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="screen">
+        <div class="scan-line"></div>
+        <h1>UPLINK SUCCESSFUL</h1>
+        <div class="data">
+            > CURRENT LOCATION: LAHORE, PK<br>
+            > TARGET: UNIVERSITY OF NAROWAL<br>
+            > STATUS: EIDI DETECTED<br>
+            > SECTOR: 5:00 PM NOVEMBER PEAKS
+        </div>
+        <div class="eidi-cmd">
+            EIDI IS WAITING FOR YOU.
+        </div>
+        <div class="coords">
+            32.0943° N, 74.8746° E <br>
+            RECOVERY AUTHORIZED FOR ZUMR.
+        </div>
+    </div>
+</body>
+</html>

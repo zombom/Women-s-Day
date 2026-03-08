@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zumr | The November Monolith</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,400&family=Montserrat:wght@100;300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --emerald: #10b981;
+            --emerald-glow: #34d399;
+            --bg-dark: #010409;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+        
+        body, html {
+            height: 100%;
+            background: var(--bg-dark);
+            color: #f8fafc;
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            perspective: 1200px;
+        }
+
+        /* --- BACKGROUND & CINEMATIC ZOOM --- */
+        #main-visual {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('image_0.png') no-repeat center center;
+            background-size: cover;
+            z-index: 1;
+            filter: blur(25px) brightness(0.2);
+            transition: filter 4s ease, transform 20s linear;
+        }
+
+        .zoom-active { transform: scale(1.15); filter: blur(0px) brightness(0.5) !important; }
+
+        /* --- PARTICLE ENGINES --- */
+        canvas { position: fixed; top: 0; left: 0; z-index: 100; pointer-events: none; }
+
+        /* --- THE LAYERED FOG VEIL --- */
+        #fog-layer {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 60;
+            pointer-events: none;
+            transition: opacity 4s ease;
+        }
+
+        .mist {
+            position: absolute;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            filter: blur(80px);
+            animation: drift 30s linear infinite;
+        }
+
+        @keyframes drift {
+            from { transform: translate(-10%, -10%) rotate(0deg); }
+            to { transform: translate(5%, 5%) rotate(360deg); }
+        }
+
+        /* --- PORTION 1: LANDING --- */
+        #landing-ui {
+            position: relative;
+            z-index: 200;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 2s ease;
+        }
+
+        .womens-day-glow {
+            font-size: 1.1rem;
+            letter-spacing: 15px;
+            text-transform: uppercase;
+            color: var(--emerald);
+            text-shadow: 0 0 10px var(--emerald-glow), 0 0 20px var(--emerald);
+            margin-bottom: 25px;
+            font-weight: 400;
+            animation: glowPulse 3s infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 10px var(--emerald-glow), 0 0 20px var(--emerald); opacity: 1; }
+            50% { text-shadow: 0 0 20px var(--emerald-glow), 0 0 40px var(--emerald); opacity: 0.8; }
+        }
+
+        h1.hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 12vw, 7rem);
+            font-weight: 900;
+            letter-spacing: 25px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .ignite-btn {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 22px 70px;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            transition: 0.8s;
+            font-size: 0.8rem;
+        }
+
+        .ignite-btn:hover {
+            border-color: var(--emerald);
+            box-shadow: 0 0 50px rgba(16, 185, 129, 0.4);
+            letter-spacing: 12px;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        /* --- PORTION 2: THE ASTONISHING SANCTUARY --- */
+        #sanctuary {
+            position: relative;
+            z-index: 150;
+            display: none;
+            height: 100vh;
+            overflow-y: scroll;
+            padding: 200px 20px;
+            scroll-behavior: smooth;
+        }
+
+        .altar {
+            perspective: 1200px;
+            max-width: 900px;
+            margin: 0 auto 250px auto;
+        }
+
+        .tablet {
+            background: var(--glass);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--border);
+            padding: 80px;
+            border-radius: 4px;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease, opacity 2s ease, box-shadow 0.5s;
+            opacity: 0;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: rotateX(10deg);
+        }
+
+        .tablet.revealed { opacity: 1; transform: rotateX(0deg); }
+
+        .tablet:hover {
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 30px 100px rgba(16, 185, 129, 0.1);
+        }
+
+        .tablet-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            color: var(--emerald);
+            margin-bottom: 30px;
+            transform: translateZ(60px);
+        }
+
+        .tablet-body {
+            font-size: 1.25rem;
+            line-height: 2.4;
+            font-weight: 200;
+            color: #cbd5e1;
+            transform: translateZ(40px);
+        }
+
+        /* --- THE BATAO MIRROR MODAL --- */
+        #batao-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(1, 4, 9, 0.95);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 50px;
+            text-align: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content { max-width: 700px; animation: modalFade 1s ease; }
+        @keyframes modalFade { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        .batao-ring {
+            width: 150px; height: 150px; border: 2px solid var(--emerald); border-radius: 50%;
+            display: inline-flex; justify-content: center; align-items: center;
+            cursor: pointer; margin-top: 50px; transition: 0.5s;
+        }
+
+        .batao-ring:hover { transform: scale(1.1); box-shadow: 0 0 50px var(--emerald); background: rgba(16, 185, 129, 0.1); }
+
+        #audio-controls {
+            position: fixed; bottom: 30px; right: 30px; z-index: 500;
+            display: none; background: rgba(0,0,0,0.5); padding: 10px 20px;
+            border-radius: 50px; border: 1px solid var(--emerald);
+            backdrop-filter: blur(10px); color: var(--emerald); font-size: 0.7rem; letter-spacing: 2px;
+        }
+
+        /* --- QR SECTION STYLING --- */
+.qr-image {
+    width: 220px;
+    height: 220px;
+    margin: 40px auto;
+    border: 4px solid var(--emerald);
+    padding: 10px;
+    background: white;
+    filter: drop-shadow(0 0 20px var(--emerald));
+    transition: transform 0.5s;
+}
+
+.qr-image:hover { 
+    transform: scale(1.1); 
+    filter: drop-shadow(0 0 40px var(--emerald)); 
+}
+
+    </style>
+</head>
+<body>
+
+    <audio id="zumrVoice" src="zumr_singing.mp3" loop></audio>
+
+    <div id="main-visual"></div>
+    <canvas id="rainCanvas"></canvas>
+    <canvas id="emeraldDustCanvas"></canvas>
+    
+    <div id="fog-layer">
+        <div class="mist" style="top: -10%; left: -10%;"></div>
+        <div class="mist" style="bottom: -10%; right: -10%; animation-delay: -10s;"></div>
+    </div>
+
+    <div id="landing-ui">
+        <p class="womens-day-glow">Happy Women's Day TO The Most Amazing Girlie</p>
+        <h1 class="hero-title">ZUMR</h1>
+        <button class="ignite-btn" onclick="igniteMonolith()">Clear the Rain</button>
+    </div>
+
+    <div id="sanctuary">
+        <div class="altar">
+            <div class="tablet" id="t1">
+                <div class="tablet-header">The Frequency</div>
+                <div class="tablet-body">
+                    To <strong>Zum Zum</strong>: You hear a flaw, but I hear a sanctuary. Ap ki awaz ufff Allah, apko kya lagta me kyun kheta hoon bar bar ganon ka it's beautiful bhai. Your voice is the 5:00 PM Mountain Rain literaaly it's a melody. It isn't meant to be quiet; it is resonant. It is beautiful because it is the way you are. I am thankful & glad that you don't have the typical high pitched sar me lagne wali awaz, FEMIININE Voice ka mtlb ye nhi hota patli high pitched hi ho, apki awaz is equal to peak feminity. your vocice corresponds to the 5:00 PM Mountains in Rain. Roze me hoon jhoot nhi bolon ga.
+                </div>
+            </div>
+        </div>
+
+        <div class="altar">
+            <div class="tablet" id="t2">
+                <div class="tablet-header">The Protocol</div>
+                <div class="tablet-body">
+                    <strong>"Ehtasham. Batao."</strong><br><br>The repeated note that saves the song. Whenever I am lost in the fog, you stand there and demand clarity. Khabhi khabhi khayal ata ha ke yar kya aflatoon khatoon ho ap per hain ho tu 'Maal' hi 😉🤤. Never stop this Ehtasham, batao. Please never stop this or ager kia tu Lahore me ghus ke maron ga ghar pata ha mujh apka.
+                </div>
+            </div>
+        </div>
+
+        <div class="altar">
+            <div class="tablet" id="t3">
+                <div class="tablet-header">The Anchor</div>
+                <div class="tablet-body">
+                    You are <strong>the Anchor</strong>. Mentally mature, architecturally sound, and beautifully fierce. You are fire and water at the same time. You are everything good. Ap na ap 10/10 'MAAL' ho or wo bhi elite class top level 'MAAL'. Ik bande me kitni hi Qualities ho sakti bbhai. HAAAAAAAAAAAAAAAYYYYYYYYYYYYYEEEEEEEEEEE.
+                </div>
+                <center>
+                    <div class="batao-ring" onclick="openMirror()">
+                        <span style="font-weight:900; text-transform:uppercase; font-size:0.7rem;">Batao.<br>It's My Turn</span>
+                    </div>
+                </center>
+            </div>
+        </div>
+
+        <div class="altar">
+    <div class="tablet" id="t4" style="text-align: center;">
+        <div class="tablet-header" style="font-size: 2.5rem;">The Eidi Beacon</div>
+        <div class="tablet-body" style="font-size: 1.1rem;">
+            The Monolith has calculated your distance. Lahore is temporary, but the Anchor is waiting back in Narowal. 
+        </div>
+        
+        <img src="qr_code.png" class="qr-image" alt="Scan to Lock On">
+
+        <div class="tablet-body" style="font-size: 0.9rem; margin-top: 20px; opacity: 0.5;">
+            Scan to synchronize coordinates with the University.
+        </div>
+    </div>
+</div>
+
+        <footer style="text-align:center; padding: 100px 0; opacity: 0.2; font-size: 0.7rem; letter-spacing: 5px;">
+            MARCH 8, 2026 | THE NOVEMBER MONOLITH
+        </footer>
+    </div>
+
+    <div id="batao-modal">
+        <div class="modal-content">
+            <h1 style="color:var(--emerald); font-family:'Playfair Display'; font-size: 3rem; margin-bottom: 20px;">Mere Kaleshi Malte.</h1>
+            <p style="font-size: 1.3rem; line-height: 2;">Zum Zum. Whenever you are lost in the fog, I will be the note that anchors you. I will dismantle the chaos until the dark fades. Per mujh samagh nhi ati emotions ki abhi tu please khud se problems share kar dia karna baki I'm trying 🤧. And I would be really really happy jab ap problem ke baad nhi problem se phle mujh batao ge. This will kill all my insecurities.
+                TO THE MOST AMAZING WOMEN >>> BEWAKOOF/BANDARI/CHUDAIL <br><br> <strong>Batao. I am here.</strong></p>
+            <button onclick="closeMirror()" style="margin-top:50px; background:none; border:none; color:white; opacity:0.3; cursor:pointer; letter-spacing:3px;">[ RETURN ]</button>
+        </div>
+    </div>
+
+    <div id="audio-controls" onclick="toggleMute()">
+        <span id="muteLabel">VOLUME: ON</span>
+    </div>
+
+    <script>
+        // --- RAIN & DUST ENGINES ---
+        const rainCanvas = document.getElementById('rainCanvas');
+        const rCtx = rainCanvas.getContext('2d');
+        const dustCanvas = document.getElementById('emeraldDustCanvas');
+        const dCtx = dustCanvas.getContext('2d');
+        let drops = [], particles = [], dustActive = false;
+
+        function init() {
+            rainCanvas.width = dustCanvas.width = window.innerWidth;
+            rainCanvas.height = dustCanvas.height = window.innerHeight;
+            for(let i=0; i<150; i++) drops.push({x: Math.random()*innerWidth, y: Math.random()*innerHeight, l: Math.random()*30+20, s: Math.random()*10+10});
+            for(let i=0; i<60; i++) particles.push({x: Math.random()*innerWidth, y: Math.random()*innerHeight, r: Math.random()*2, o: Math.random(), s: Math.random()*0.8});
+        }
+
+        function animate() {
+            rCtx.clearRect(0,0,innerWidth,innerHeight);
+            rCtx.strokeStyle = 'rgba(255,255,255,0.18)';
+            rCtx.lineWidth = 1;
+            drops.forEach(d => {
+                rCtx.beginPath(); rCtx.moveTo(d.x, d.y); rCtx.lineTo(d.x, d.y+d.l); rCtx.stroke();
+                d.y += d.s; if(d.y > innerHeight) d.y = -50;
+            });
+
+            if(dustActive) {
+                dCtx.clearRect(0,0,innerWidth,innerHeight);
+                particles.forEach(p => {
+                    dCtx.fillStyle = `rgba(16, 185, 129, ${p.o})`;
+                    dCtx.beginPath(); dCtx.arc(p.x, p.y, p.r, 0, Math.PI*2); dCtx.fill();
+                    p.y -= p.s; if(p.y < 0) p.y = innerHeight;
+                });
+            }
+            requestAnimationFrame(animate);
+        }
+
+        const voice = document.getElementById('zumrVoice');
+
+        function igniteMonolith() {
+            voice.volume = 0.5;
+            voice.play();
+            
+            document.getElementById('landing-ui').style.opacity = '0';
+            document.getElementById('fog-layer').style.opacity = '0';
+            const visual = document.getElementById('main-visual');
+            visual.classList.add('zoom-active');
+            
+            setTimeout(() => {
+                document.getElementById('landing-ui').style.display = 'none';
+                document.getElementById('sanctuary').style.display = 'block';
+                document.getElementById('audio-controls').style.display = 'block';
+                dustActive = true;
+                document.body.style.overflowY = 'auto';
+            }, 2000);
+        }
+
+        function openMirror() { document.getElementById('batao-modal').style.display = 'flex'; }
+        function closeMirror() { document.getElementById('batao-modal').style.display = 'none'; }
+        
+        function toggleMute() {
+            voice.muted = !voice.muted;
+            document.getElementById('muteLabel').innerText = voice.muted ? "VOLUME: OFF" : "VOLUME: ON";
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            if(window.getComputedStyle(document.getElementById('sanctuary')).display === 'none') return;
+            const x = (window.innerWidth / 2 - e.pageX) / 30;
+            const y = (window.innerHeight / 2 - e.pageY) / 30;
+            document.querySelectorAll('.tablet').forEach(t => t.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`);
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('revealed'); });
+        }, { threshold: 0.2 });
+        document.querySelectorAll('.tablet').forEach(t => observer.observe(t));
+
+        window.onload = () => { init(); animate(); };
+    </script>
+</body>
+</html>
